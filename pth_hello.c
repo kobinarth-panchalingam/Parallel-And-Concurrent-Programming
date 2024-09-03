@@ -4,7 +4,7 @@
 
 int thread_count;
 
-void* Hello(void* rank);
+void* hello(void* rank);
 
 int main (int argc, char* argv[]) {
     long thread;
@@ -16,7 +16,7 @@ int main (int argc, char* argv[]) {
     thread_handles = malloc(thread_count * sizeof(pthread_t));
 
     for (thread = 0; thread < thread_count; thread++) {
-        pthread_create(&thread_handles[thread], NULL, Hello, (void*) thread);
+        pthread_create(&thread_handles[thread], NULL, hello, (void*) thread);
     }
 
     printf("Hello from main thread\n");
@@ -29,7 +29,7 @@ int main (int argc, char* argv[]) {
     return 0;
 }
 
-void* Hello(void* rank) {
+void* hello(void* rank) {
     long my_rank = (long) rank;
     printf("Hello from thread %ld of %d\n", my_rank, thread_count);
     return NULL;

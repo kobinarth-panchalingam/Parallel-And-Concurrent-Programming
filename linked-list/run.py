@@ -9,7 +9,7 @@ NO_OF_SAMPLES = 100  # Number of samples used
 def compileAll():
     subprocess.call(['gcc', '-g', '-Wall', '-o', 'serial_program', 'serial_program.c'])
     subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_mutex_program', 'parallel_mutex_program.c', '-lm', '-lpthread'])
-    # subprocess.call(['gcc', '-g', '-Wall', '-o', 'linkedlistRWlock', 'linkedlistRWlock.c', '-lm', '-lpthread'])
+    subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_rw_lock_program', 'parallel_rw_lock_program.c', '-lm', '-lpthread'])
 
 # Execution of given process and calculation of average and standard deviation
 def execute(command):
@@ -23,8 +23,8 @@ def execute(command):
     standard_deviation = statistics.stdev(elapsed_times)
     samples = math.ceil(((100 * 1.96 * standard_deviation) / (5 * avg)) ** 2)
 
-    print(f'Average: {avg}')
-    print(f'Standard Deviation: {standard_deviation}')
+    print(f'Average: {avg:.2f}')
+    print(f'Standard Deviation: {standard_deviation:.5f}')
     print(f'Samples: {samples}')
 
     return avg
@@ -81,38 +81,41 @@ mutex_3 = [['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', 
            ['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
            ['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '8']]
 
-# rw_1 = [['./linkedlistRWlock', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.99', '0.005', '0.005', '8']]
+rw_1 = [['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '8']]
 
-# rw_2 = [['./linkedlistRWlock', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.9', '0.05', '0.05', '8']]
+rw_2 = [['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '8']]
 
-# rw_3 = [['./linkedlistRWlock', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
-#         ['./linkedlistRWlock', '1000', '10000', '0.5', '0.25', '0.25', '8']]
+rw_3 = [['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '8']]
 
 mutex = [mutex_1, mutex_2, mutex_3]
-# rw = [rw_1, rw_2, rw_3]
+rw = [rw_1, rw_2, rw_3]
 
 # Execute and plot the output
 for i in range(1, 4):
     print(f'=============== CASE: {i} ===============')
+
     print('Serial linked list ')
     print('=======')
     serial_avg = execute(serial[i-1])
     print('')
+
     print('Mutex linked list ')
     print('=======')
     threads, mutex_averages = executeCommands(mutex[i-1])
-    # print('')
-    # print('Read-Write linked list ')
-    # print('=======')
-    # _, rw_averages = executeCommands(rw[i-1])
+    print('')
+
+    print('Read-Write linked list ')
+    print('=======')
+    _, rw_averages = executeCommands(rw[i-1])
     
     # Save the results for this case
-    plot_results(i, threads, serial_avg, mutex_averages,[0,0,0,0], f'case_{i}_comparison.png')
+    plot_results(i, threads, serial_avg, mutex_averages,rw_averages, f'case_{i}_comparison.png')

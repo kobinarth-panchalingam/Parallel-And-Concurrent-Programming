@@ -16,6 +16,8 @@ int no_of_operations;
 int no_of_member_per_thread;
 int no_of_insert_per_thread;
 int no_of_delete_per_thread;
+int no_of_operations_per_thread;
+pthread_mutex_t mutex;
 
 // Function prototypes
 int insert(int value);
@@ -24,19 +26,22 @@ int delete(int value);
 void init(int no_of_variables);
 void init_operations(int* operations);
 long get_time();
-void perform_operations(int* operations);
+void* do_operations(void* operations);
 void free_list();
 
 // Main function
 int main(int argc, char* argv[]) {
     // check no of arguments
-    if (argc != 6) {
+    if (argc != 7) {
         printf("Invalid number of arguments\n");
         return -1;
     }
 
     // Variables for time calculation
     long start, finish, elapsed;
+    // Variables for threads
+    int thread;
+    pthread_t* thread_handles;
 
     // Collecting arguments
     int no_of_variables = atoi(argv[1]);
@@ -44,6 +49,12 @@ int main(int argc, char* argv[]) {
     no_of_member_per_thread = strtod(argv[3], NULL) * no_of_operations;
     no_of_insert_per_thread = strtod(argv[4], NULL) * no_of_operations;
     no_of_delete_per_thread = strtod(argv[5], NULL) * no_of_operations;
+    int no_of_threads = atoi(argv[6]);
+    no_of_operations_per_thread = no_of_operations / no_of_threads;
+
+    // Initialize the mutex
+    pthread_mutex_init(&mutex, NULL);
+    thread_handles = (pthread_t*) malloc(no_of_threads * sizeof(pthread_t));
 
     // Initialize the linked list
     init(no_of_variables);
@@ -56,7 +67,13 @@ int main(int argc, char* argv[]) {
     start = get_time();
 
     // Perform the operations
-    perform_operations(operations);
+    for (thread = 0; thread < no_of_threads; thread++) {
+        pthread_create(&thread_handles[thread], NULL, do_operations, (void*) operations);
+    }
+
+    for (thread = 0; thread < no_of_threads; thread++) {
+        pthread_join(thread_handles[thread], NULL);
+    }
 
     // Get the finish time
     finish = get_time();
@@ -74,18 +91,26 @@ int main(int argc, char* argv[]) {
 }
 
 // Function to perform the operations in the operation array
-void perform_operations(int* operations) {
-    long i = 0;
-    for (i = 0; i < no_of_operations; i++) {
+void* do_operations(void* operations) {
+    int* ops = operations;
+    int i;
+    for (i = 0; i < no_of_operations_per_thread; i++) {
         int value = rand() % MAX;
-        if (operations[i] == 1) {
+        if (ops[i] == 1) {
+            pthread_mutex_lock(&mutex);
             insert(value);
-        } else if (operations[i] == -1) {
+            pthread_mutex_unlock(&mutex);
+        } else if (ops[i] == -1) {
+            pthread_mutex_lock(&mutex);
             delete(value);
+            pthread_mutex_unlock(&mutex);
         } else {
+            pthread_mutex_lock(&mutex);
             member(value);
+            pthread_mutex_unlock(&mutex);
         }
     }
+    return NULL;
 }
 
 // Function to get the current time in milliseconds
@@ -130,6 +155,7 @@ void init_operations(int* operations) {
         operations[j] = temp;
     }
 }
+
 // Function to free the linked list
 void free_list() {
     struct node* curr_p;

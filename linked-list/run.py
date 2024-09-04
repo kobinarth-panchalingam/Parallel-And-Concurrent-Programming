@@ -2,8 +2,11 @@ import subprocess
 import statistics
 import math
 import matplotlib.pyplot as plt
+from tabulate import tabulate
+import csv
+import os
 
-NO_OF_SAMPLES = 100  # Number of samples used
+NO_OF_SAMPLES = 200  # Number of samples used
 
 # Compiling the source codes in C
 def compileAll():
@@ -23,24 +26,28 @@ def execute(command):
     standard_deviation = statistics.stdev(elapsed_times)
     samples = math.ceil(((100 * 1.96 * standard_deviation) / (5 * avg)) ** 2)
 
-    print(f'Average: {avg:.2f}')
+    print(f'Average: {avg:.5f}')
     print(f'Standard Deviation: {standard_deviation:.5f}')
     print(f'Samples: {samples}')
 
-    return avg
+    return avg, standard_deviation, samples
 
 # Execution of a list of commands
 def executeCommands(cmds):
     threads = []
     averages = []
+    standard_deviations = []
+    samples_list = []
     for i in range(len(cmds)):
         num_threads = 2**i
         print(f"Number of Threads: {num_threads}")
-        avg = execute(cmds[i])
+        avg, std_dev, samples = execute(cmds[i])
         averages.append(avg)
+        standard_deviations.append(std_dev)
+        samples_list.append(samples)
         threads.append(num_threads)
         print("")
-    return threads, averages
+    return threads, averages, standard_deviations, samples_list
 
 # Plotting the results and saving the plot as an image
 def plot_results(case, threads, serial_avg, mutex_averages, rw_averages, filename):
@@ -55,8 +62,14 @@ def plot_results(case, threads, serial_avg, mutex_averages, rw_averages, filenam
     plt.yscale('linear')  # Linear scale for time in milliseconds
     plt.grid(True)
     plt.legend()
-    plt.savefig(filename)
+    plt.savefig(os.path.join(output_dir, filename))
     plt.close()
+
+# Save table data to a CSV file
+def save_table_to_csv(table_data, filename):
+    with open(os.path.join(output_dir, filename), mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(table_data)
 
 # Compile all the files
 compileAll()
@@ -99,23 +112,50 @@ rw_3 = [['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '
 mutex = [mutex_1, mutex_2, mutex_3]
 rw = [rw_1, rw_2, rw_3]
 
+# Ensure the directory exists
+output_dir = 'results'
+os.makedirs(output_dir, exist_ok=True)
+
 # Execute and plot the output
 for i in range(1, 4):
     print(f'=============== CASE: {i} ===============')
 
     print('Serial linked list ')
     print('=======')
-    serial_avg = execute(serial[i-1])
+    serial_avg, serial_std_dev, serial_samples = execute(serial[i-1])
     print('')
 
     print('Mutex linked list ')
     print('=======')
-    threads, mutex_averages = executeCommands(mutex[i-1])
+    threads, mutex_averages, mutex_standard_deviations, mutex_samples = executeCommands(mutex[i-1])
     print('')
 
     print('Read-Write linked list ')
     print('=======')
-    _, rw_averages = executeCommands(rw[i-1])
+    _, rw_averages, rw_standard_deviations, rw_samples = executeCommands(rw[i-1])
     
     # Save the results for this case
-    plot_results(i, threads, serial_avg, mutex_averages,rw_averages, f'case_{i}_comparison.png')
+    plot_results(i, threads, serial_avg, mutex_averages, rw_averages, f'case_{i}_comparison.png')
+
+    # Generate table of results
+    table_data = [
+        ["Threads", "1", "1", "2", "2", "4", "4", "8", "8"],
+        ["Method", "Avg", "Std", "Avg", "Std", "Avg", "Std", "Avg", "Std"],
+        ["Serial", f"{serial_avg:.5f}", f"{serial_std_dev:.5f}", "-", "-", "-", "-", "-", "-"],
+        ["Mutex", f"{mutex_averages[0]:.5f}", f"{mutex_standard_deviations[0]:.5f}", f"{mutex_averages[1]:.5f}", f"{mutex_standard_deviations[1]:.5f}", f"{mutex_averages[2]:.5f}", f"{mutex_standard_deviations[2]:.5f}", f"{mutex_averages[3]:.5f}", f"{mutex_standard_deviations[3]:.5f}"],
+        ["Read-Write", f"{rw_averages[0]:.5f}", f"{rw_standard_deviations[0]:.5f}", f"{rw_averages[1]:.5f}", f"{rw_standard_deviations[1]:.5f}", f"{rw_averages[2]:.5f}", f"{rw_standard_deviations[2]:.5f}", f"{rw_averages[3]:.5f}", f"{rw_standard_deviations[3]:.5f}"]
+    ]
+    print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
+    save_table_to_csv(table_data, f'case_{i}_results.csv')
+    print('')
+
+    # Generate table of samples
+    samples_table_data = [
+        ["Threads", "1", "2", "4", "8"],
+        ["Serial", serial_samples, "-", "-", "-"],
+        ["Mutex", mutex_samples[0], mutex_samples[1], mutex_samples[2], mutex_samples[3]],
+        ["Read-Write", rw_samples[0], rw_samples[1], rw_samples[2], rw_samples[3]]
+    ]
+    print(tabulate(samples_table_data, headers="firstrow", tablefmt="grid"))
+    save_table_to_csv(samples_table_data, f'case_{i}_samples.csv')
+    print('')

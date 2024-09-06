@@ -12,7 +12,6 @@ struct node {
 
 // Global variables
 struct node* head_p = NULL;
-int no_of_operations;
 int no_of_member_per_thread;
 int no_of_insert_per_thread;
 int no_of_delete_per_thread;
@@ -45,12 +44,11 @@ int main(int argc, char* argv[]) {
 
     // Collecting arguments
     int no_of_variables = atoi(argv[1]);
-    no_of_operations = atoi(argv[2]);
-    no_of_member_per_thread = strtod(argv[3], NULL) * no_of_operations;
-    no_of_insert_per_thread = strtod(argv[4], NULL) * no_of_operations;
-    no_of_delete_per_thread = strtod(argv[5], NULL) * no_of_operations;
     int no_of_threads = atoi(argv[6]);
-    no_of_operations_per_thread = no_of_operations / no_of_threads;
+    no_of_operations_per_thread = atoi(argv[2]) / no_of_threads;
+    no_of_member_per_thread = strtod(argv[3], NULL) * no_of_operations_per_thread;
+    no_of_insert_per_thread = strtod(argv[4], NULL) * no_of_operations_per_thread;
+    no_of_delete_per_thread = strtod(argv[5], NULL) * no_of_operations_per_thread;
 
     // Initialize the mutex
     pthread_mutex_init(&mutex, NULL);
@@ -60,7 +58,7 @@ int main(int argc, char* argv[]) {
     init(no_of_variables);
 
     // Initalize array of operations in random order
-    int operations[no_of_operations];
+    int operations[no_of_operations_per_thread];
     init_operations(operations);
 
     // Get the start time
@@ -136,7 +134,7 @@ void init(int no_of_variables) {
 // Function to initialize the array of operations
 void init_operations(int* operations) {
     int i = 0;
-    for (i = 0; i < no_of_operations; i++) {
+    for (i = 0; i < no_of_operations_per_thread; i++) {
         if (i < no_of_insert_per_thread) {
             operations[i] = 1;
         } else if (i < no_of_insert_per_thread + no_of_delete_per_thread) {
@@ -148,7 +146,7 @@ void init_operations(int* operations) {
 
     // Shuffle the array of operations using a random seed
     srand(time(NULL));
-    for (i = no_of_operations - 1; i > 0; i--) {
+    for (i = no_of_operations_per_thread - 1; i > 0; i--) {
         int j = rand() % (i + 1);
         int temp = operations[i];
         operations[i] = operations[j];

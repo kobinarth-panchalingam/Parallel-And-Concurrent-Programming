@@ -6,7 +6,7 @@ from tabulate import tabulate
 import csv
 import os
 
-NO_OF_SAMPLES = 100  # Number of samples used
+NO_OF_SAMPLES = 500  # Number of samples used
 
 # Compiling the source codes in C
 def compileAll():

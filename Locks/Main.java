@@ -1,9 +1,13 @@
 public class Main {
     public static void main(String[] args) {
+        runCounter();
+    }
+
+    public static void runCounter() {
         Counter counter = new Counter();
 
         // No of threads
-        int noOfThreads = 10;
+        int noOfThreads = 2;
 
         // Create an array to hold threads
         Thread[] threads = new Thread[noOfThreads];

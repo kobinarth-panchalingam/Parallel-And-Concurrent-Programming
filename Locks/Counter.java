@@ -3,7 +3,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Counter {
     private int count = 0;
-    private Lock lock = new LockOne();
+    private Lock lock;
+
+    public Counter(Lock lock) {
+        this.lock = lock;
+    }
 
     public int getAndIncrement() {
         lock.lock();

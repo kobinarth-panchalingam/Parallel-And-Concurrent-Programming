@@ -1,14 +1,21 @@
 public class Main {
     public static void main(String[] args) {
-        runCounter();
+        /* Deadlock will occur if we use LockOne because it is not able
+        to handle the case where both threads are trying to acquire the lock at the same time.
+        */
+//        runCounter(new Counter(new LockOne()),2);
+        /* Starvation will occur in the absence of contention if we use LockTwo because thread alone
+        can't enter the critical section if the other thread didn't make them as a victim.
+         */
+//        runCounter(new Counter(new LockTwo()),2);
+        /* DeadLoack and Startvation can not occur*/
+//        runCounter(new Counter(new PetersonLock()),2);
+//        runCounter(new Counter(new FilterLock(4)),4);
+        runCounter(new Counter(new BakeryLock(4)),4);
     }
 
-    public static void runCounter() {
-        Counter counter = new Counter();
 
-        // No of threads
-        int noOfThreads = 2;
-
+    public static void runCounter(Counter counter, int noOfThreads) {
         // Create an array to hold threads
         Thread[] threads = new Thread[noOfThreads];
 
@@ -17,7 +24,7 @@ public class Main {
                     new Runnable() {
                         @Override
                         public void run() {
-                            for (int j = 0; j < 100; j++) {
+                            for (int j = 0; j < 1000; j++) {
                                 System.out.println(Thread.currentThread().getName() + ": " + counter.getAndIncrement());
                             }
                         }

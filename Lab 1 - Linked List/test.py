@@ -6,13 +6,13 @@ from tabulate import tabulate
 import csv
 import os
 
-NO_OF_SAMPLES = 500  # Number of samples used
+NO_OF_SAMPLES = 100  # Number of samples used
 
 # Compiling the source codes in C
 def compileAll():
-    subprocess.call(['gcc', '-g', '-Wall', '-o', 'serial_program.exe', 'serial_program.c'])
-    subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_mutex_program.exe', 'parallel_mutex_program.c', '-lm', '-lpthread'])
-    subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_rw_lock_program.exe', 'parallel_rw_lock_program.c', '-lm', '-lpthread'])
+    subprocess.call(['gcc', '-g', '-Wall', '-o', 'serial_program', 'serial_program.c'])
+    subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_mutex_program', 'parallel_mutex_program.c', '-lm', '-lpthread'])
+    subprocess.call(['gcc', '-g', '-Wall', '-o', 'parallel_rw_lock_program', 'parallel_rw_lock_program.c', '-lm', '-lpthread'])
 
 # Execution of given process and calculation of average and standard deviation
 def execute(command):
@@ -24,7 +24,7 @@ def execute(command):
 
     avg = statistics.mean(elapsed_times)
     standard_deviation = statistics.stdev(elapsed_times)
-    samples = math.ceil(((100 * 1.96 * standard_deviation) / (5 * avg)) ** 2)
+    samples = math.ceil(math.pow(((100 * 1.96 * standard_deviation) / (5 * avg)), 2))
 
     print(f'Average: {avg:.5f}')
     print(f'Standard Deviation: {standard_deviation:.5f}')
@@ -75,39 +75,39 @@ def save_table_to_csv(table_data, filename):
 compileAll()
 
 # Commands to be executed
-serial = [['./serial_program.exe', '1000', '10000', '0.99', '0.005', '0.005'], 
-          ['./serial_program.exe', '1000', '10000', '0.9', '0.05', '0.05'], 
-          ['./serial_program.exe', '1000', '10000', '0.5', '0.25', '0.25']]
+serial = [['./serial_program', '1000', '10000', '0.99', '0.005', '0.005'], 
+          ['./serial_program', '1000', '10000', '0.9', '0.05', '0.05'], 
+          ['./serial_program', '1000', '10000', '0.5', '0.25', '0.25']]
 
-mutex_1 = [['./parallel_mutex_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '8']]
+mutex_1 = [['./parallel_mutex_program', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.99', '0.005', '0.005', '8']]
 
-mutex_2 = [['./parallel_mutex_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '8']]
+mutex_2 = [['./parallel_mutex_program', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.9', '0.05', '0.05', '8']]
 
-mutex_3 = [['./parallel_mutex_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
-           ['./parallel_mutex_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '8']]
+mutex_3 = [['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
+           ['./parallel_mutex_program', '1000', '10000', '0.5', '0.25', '0.25', '8']]
 
-rw_1 = [['./parallel_rw_lock_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.99', '0.005', '0.005', '8']]
+rw_1 = [['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.99', '0.005', '0.005', '8']]
 
-rw_2 = [['./parallel_rw_lock_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.9', '0.05', '0.05', '8']]
+rw_2 = [['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.9', '0.05', '0.05', '8']]
 
-rw_3 = [['./parallel_rw_lock_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
-        ['./parallel_rw_lock_program.exe', '1000', '10000', '0.5', '0.25', '0.25', '8']]
+rw_3 = [['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '1'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '2'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '4'], 
+        ['./parallel_rw_lock_program', '1000', '10000', '0.5', '0.25', '0.25', '8']]
 
 mutex = [mutex_1, mutex_2, mutex_3]
 rw = [rw_1, rw_2, rw_3]

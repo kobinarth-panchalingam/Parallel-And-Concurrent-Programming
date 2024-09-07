@@ -103,7 +103,7 @@ void* do_operations(void* operations) {
             delete(value);
             pthread_rwlock_unlock(&rwlock);
         } else {
-            pthread_rwlock_wrlock(&rwlock);
+            pthread_rwlock_rdlock(&rwlock);
             member(value);
             pthread_rwlock_unlock(&rwlock);
         }

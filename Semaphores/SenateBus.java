@@ -2,9 +2,9 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class SenateBus {
-    public static final long BUS_ARRIVAL_MEAN_TIME = 20 * 30 * 1000 / 20; // 20 minutes in milliseconds
+    public static final long BUS_ARRIVAL_MEAN_TIME = 20 * 30 * 1000; // 20 minutes in milliseconds
 
-    public static final long RIDER_ARRIVAL_MEAN_TIME = 30 * 1000 / 20; // 30 seconds in milliseconds
+    public static final long RIDER_ARRIVAL_MEAN_TIME = 30 * 1000; // 30 seconds in milliseconds
 
     public static int BUS_CAPACITY = 50;
 
